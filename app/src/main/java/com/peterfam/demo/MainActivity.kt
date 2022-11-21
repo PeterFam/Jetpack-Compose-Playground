@@ -3,56 +3,58 @@ package com.peterfam.demo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.peterfam.demo.ui.components.ColorBox
-import com.peterfam.demo.ui.components.CustomText
-import com.peterfam.demo.ui.components.ImageCard
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-
-            val color = remember {
-                mutableStateOf(Color.Yellow)
+            val scaffoldState = rememberScaffoldState()
+            var textFieldState by remember {
+                mutableStateOf("")
             }
-            Column(Modifier.fillMaxSize()) {
-                ColorBox(
+
+            val scope = rememberCoroutineScope()
+            Scaffold(
+                modifier = Modifier.fillMaxSize(),
+                scaffoldState = scaffoldState
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
                     modifier = Modifier
-                        .weight(1f)
                         .fillMaxSize()
+                        .padding(horizontal = 30.dp)
                 ) {
-                    color.value = it
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        value = textFieldState,
+                        label = { Text(text = "Enter your name:") },
+                        onValueChange = {
+                            textFieldState = it
+                        })
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = {
+                        scope.launch {
+                            scaffoldState.snackbarHostState.showSnackbar("Hello $textFieldState")
+                        }
+                    }) {
+                        Text(text = "Greet me!")
+                    }
                 }
-                Box(modifier = Modifier
-                    .background(color = color.value)
-                    .weight(1f)
-                    .fillMaxSize())
             }
         }
     }
 }
 
 
-@Preview
-@Composable
-fun PreviewImageCard() {
-    ImageCard(
-        painter = painterResource(id = R.drawable.test_ims),
-        contendDescription = "",
-        title = "This is a test text to test text vision"
-    )
-}
+
 
 
